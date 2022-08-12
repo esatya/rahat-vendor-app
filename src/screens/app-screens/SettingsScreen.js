@@ -1,59 +1,65 @@
-import React from 'react';
-import {Pressable, StyleSheet, Text, View} from 'react-native';
-import colors from '../../../constants/colors';
-import {Spacing} from '../../../constants/utils';
+import React, {useState} from 'react';
+import {StyleSheet, View} from 'react-native';
 
-import {Card, CustomHeader, RegularText} from '../../components';
-
+import {
+  Card,
+  RegularText,
+  CustomHeader,
+  LanguagePicker,
+  IndividualSettingView,
+} from '../../components';
 import {
   AboutIcon,
   AgencyIcon,
-  BackupWalletIcon,
-  DollorIcon,
+  PersonIcon,
   LanguageIcon,
   PassCodeIcon,
-  PersonIcon,
+  BackupWalletIcon,
   TransferTokenIcon,
-  WalletIcon,
 } from '../../../assets/icons';
+import {Spacing, colors} from '../../constants';
 
 const SettingsScreen = ({navigation}) => {
-  const SettingComponent = ({icon, title, onPress}) => (
-    <Pressable style={styles.rowView} onPress={onPress}>
-      {icon}
-      <RegularText style={{paddingHorizontal: Spacing.hs}}>{title}</RegularText>
-    </Pressable>
-  );
+  const [showLanguagePicker, setShowLanguagePicker] = useState(false);
 
   return (
     <>
-      <CustomHeader title="Settings" hideBackButton />
+      <CustomHeader
+        title={'Settings'}
+        onBackPress={() => navigation.pop()}
+      />
       <View style={styles.container}>
+
+        <LanguagePicker
+          show={showLanguagePicker}
+          hide={() => setShowLanguagePicker(false)}
+        />
+
         <>
           <RegularText
             color={colors.black}
-            style={{paddingVertical: Spacing.vs}}>
+            style={{paddingTop: Spacing.vs / 2}}>
             General
           </RegularText>
           <Card>
-            <SettingComponent
-              icon={<PersonIcon color={colors.gray}/>}
-              title="Profile"
+            <IndividualSettingView
+              icon={<PersonIcon color={colors.gray} />}
+              title={'Profile'}
               onPress={() => navigation.navigate('ProfileScreen')}
             />
-            <SettingComponent
+            {/* <SettingComponent
               icon={<WalletIcon />}
               title="Payment Methods"
               onPress={() => navigation.navigate('PaymentMethodScreen')}
-            />
-            <SettingComponent
+            /> */}
+            <IndividualSettingView
               icon={<AgencyIcon />}
-              title="Agency"
+              title={'Agency'}
               onPress={() => navigation.navigate('AgencyScreen')}
             />
-            <SettingComponent
+            <IndividualSettingView
               icon={<AboutIcon />}
-              title="About"
+              title={'About Us'}
               onPress={() => navigation.navigate('AboutScreen')}
             />
           </Card>
@@ -61,29 +67,29 @@ const SettingsScreen = ({navigation}) => {
         <>
           <RegularText
             color={colors.black}
-            style={{paddingVertical: Spacing.vs}}>
+            style={{paddingTop: Spacing.vs / 2}}>
             Advanced
           </RegularText>
           <Card>
-            <SettingComponent
+            <IndividualSettingView
               icon={<TransferTokenIcon />}
-              title="Transfer Token"
+              title={'Transfer Token'}
               onPress={() => navigation.navigate('TransferTokenScreen')}
             />
-            <SettingComponent
+            <IndividualSettingView
               icon={<BackupWalletIcon />}
-              title="Backup Wallet"
+              title={'Backup Wallet'}
               onPress={() => navigation.navigate('BackupWalletScreen')}
             />
-            <SettingComponent
+            <IndividualSettingView
               icon={<PassCodeIcon />}
-              title="Rahat Passcode"
+              title={'Rahat Passcode'}
               onPress={() => navigation.navigate('PasscodeScreen')}
             />
-            <SettingComponent
+            <IndividualSettingView
               icon={<LanguageIcon />}
-              title="Language"
-              // onPress={() => alert('Soon')}
+              title={'Language'}
+              onPress={() => setShowLanguagePicker(true)}
             />
           </Card>
         </>

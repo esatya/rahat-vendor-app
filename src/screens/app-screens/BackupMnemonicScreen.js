@@ -1,10 +1,10 @@
 import React from 'react';
-import {StyleSheet, Text, View, ScrollView} from 'react-native';
-import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
-import {useDispatch, useSelector} from 'react-redux';
-import colors from '../../../constants/colors';
-import {Spacing} from '../../../constants/utils';
-import {useBackHandler} from '@react-native-community/hooks';
+import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+import { StyleSheet, View, ScrollView } from 'react-native';
+import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
+
+import { Spacing, colors } from '../../constants';
 
 import {
   CustomButton,
@@ -12,60 +12,43 @@ import {
   RegularText,
   SmallText,
 } from '../../components';
-import {storeUserData} from '../../redux/actions/auth';
 
-const BackupMnemonicScreen = ({navigation, route}) => {
-  const dispatch = useDispatch();
-  const {wallet} = useSelector(state => state.wallet);
+const BackupMnemonicScreen = ({ navigation, route }) => {
+  const { t } = useTranslation();
+  const walletInfo = useSelector(state => state.walletReducer.walletInfo);
+
   const data = route?.params?.data;
-  const secretWords = wallet?._mnemonic().phrase.split(' ');
+  const secretWords = walletInfo?.mnemonic?.split(' ') || [];
 
-  useBackHandler(() => {
-    if (data) {
-      dispatch(storeUserData(data, registerSuccess));
-      return true;
-    }
-    return false;
-  });
-
-  const WordComponent = ({count, secret}) => (
+  const WordComponent = ({ count, secret }) => (
     <View style={styles.wordView}>
-      <SmallText noPadding style={{paddingTop: Spacing.vs / 2}}>
-        Word: {count}
+      <SmallText noPadding style={{ paddingTop: Spacing.vs / 2 }}>
+        {t('Word')}: {`${t(count)}`}
       </SmallText>
       <RegularText color={colors.black}>{secret}</RegularText>
     </View>
   );
 
-  const registerSuccess = () => {
-    navigation.replace('Tabs');
-  };
-
-  const handleButtonClick = () => {
-    if (data) {
-      dispatch(storeUserData(data, registerSuccess));
-    }
-  };
+  const handleButtonClick = () => navigation.pop();
 
   return (
     <>
       <CustomHeader
-        title="Backup Wallet"
+        title={'Backup Wallet'}
         hideBackButton={!!data}
         onBackPress={() => navigation.pop()}
       />
       <ScrollView style={styles.container}>
         <SmallText>
-          Here is your 12 words secret. Please write down these words in
-          sequence (using the word number) and store safely
+          Here is your 12 words secret. Please write down these words in sequence (using the word number) and store safely
         </SmallText>
 
-        {secretWords.map((item, index) => (
+        {secretWords?.map((item, index) => (
           <WordComponent key={index} count={index + 1} secret={item} />
         ))}
 
         <CustomButton
-          title="I have written it down"
+          title={'I have written it down'}
           onPress={handleButtonClick}
           style={styles.button}
         />
@@ -90,5 +73,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.hs,
     marginBottom: Spacing.vs * 1.5,
   },
-  button: {marginBottom: Spacing.vs},
+  button: { marginBottom: Spacing.vs },
 });

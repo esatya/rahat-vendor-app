@@ -1,53 +1,66 @@
-import React, {useEffect, useState} from 'react';
-import {View, Text, StatusBar, ActivityIndicator} from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
-import AuthStack from './AuthStack';
-import {useDispatch, useSelector} from 'react-redux';
-import AppStack from './AppStack';
-import {setWallet} from '../redux/actions/wallet';
-import {ethers} from 'ethers';
-import {getAppSettings, getUserByWalletAddress} from '../redux/actions/auth';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {Logo} from '../../assets/images';
-import colors from '../../constants/colors';
+import { ethers } from 'ethers';
+import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useDispatch, useSelector } from 'react-redux';
+import { NavigationContainer } from '@react-navigation/native';
+import { View, ActivityIndicator, AppState } from 'react-native';
 
-let NETWORK_URL = 'https://testnetwork.esatya.io';
+import AppStack from './AppStack';
+import AuthStack from './AuthStack';
+import { colors } from '../constants';
+import { Logo } from '../../assets/images';
+import LockScreen from '../screens/app-screens/LockScreen';
+import { setWalletData } from '../redux/actions/walletActions';
+import { lockApp, setAuthData } from '../redux/actions/authActions';
 
 const Routes = () => {
   const dispatch = useDispatch();
-  const {userData, wallet} = useSelector(state => state.auth);
-  const [initializing, setInitializing] = useState(true);
+  const { i18n } = useTranslation();
+
+  const lockScreen = useSelector(state => state.authReducer.lockScreen);
+  const rahatPasscode = useSelector(state => state.authReducer.rahatPasscode);
+  const backingUpToDriveStatus = useSelector(state => state.authReducer.backingUpToDriveStatus);
+  
+  const userData = useSelector(state => state.authReducer.userData);
+  const walletInfo = useSelector(state => state.walletReducer.walletInfo);
+  const initializing = useSelector(state => state.authReducer.initializing);
+  const activeLanguage = useSelector(state => state.languageReducer.activeLanguage);
+  const activeAppSettings = useSelector(state => state.agencyReducer.activeAppSettings);
 
   useEffect(() => {
-    dispatch(getAppSettings());
-    if (!wallet) {
-      let provider = new ethers.providers.JsonRpcProvider(NETWORK_URL);
-      AsyncStorage.getItem('walletInfo').then(walletInfo => {
-        if (walletInfo !== null) {
-          const temp = JSON.parse(walletInfo);
-          const walletRandom = ethers.Wallet.fromMnemonic(temp.mnemonic);
-          const connectedWallet = walletRandom.connect(provider);
-          dispatch(setWallet(connectedWallet));
-          dispatch(
-            getUserByWalletAddress(
-              temp.address,
-              onGetUserSuccess,
-              onGetUserError,
-            ),
-          );
-        } else {
-          setInitializing(false);
-        }
-      });
-    }
-  }, []);
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (nextAppState === 'background') {
+        !!rahatPasscode  &&
+          !backingUpToDriveStatus &&
+          dispatch(lockApp());
+      }
+    });
 
-  const onGetUserSuccess = () => {
-    setInitializing(false);
-  };
-  const onGetUserError = e => {
-    setInitializing(false);
-  };
+    return () => {
+      subscription.remove();
+    };
+  }, [rahatPasscode, backingUpToDriveStatus]);
+
+  useEffect(() => {
+    i18n.changeLanguage(activeLanguage?.name);
+  }, [activeLanguage]);
+
+  useEffect(() => {
+    setAuthData({ initializing: true });
+    if (walletInfo) {
+      const provider = new ethers.providers.JsonRpcProvider(
+        activeAppSettings?.networkUrl,
+      );
+
+      const temp = new ethers.Wallet(walletInfo.privateKey);
+      const connectedWallet = temp.connect(provider);
+      dispatch(setWalletData({ wallet: connectedWallet }));
+      dispatch(setAuthData());
+      return
+    }
+    
+    dispatch(setAuthData())
+  }, []);
 
   if (initializing) {
     return (
@@ -55,8 +68,8 @@ const Routes = () => {
         <View
           style={{
             flex: 1,
-            justifyContent: 'center',
             alignItems: 'center',
+            justifyContent: 'center',
             backgroundColor: 'white',
           }}>
           <Logo />
@@ -66,9 +79,17 @@ const Routes = () => {
     );
   }
   return (
-    <NavigationContainer>
-      {userData === null ? <AuthStack /> : <AppStack />}
-    </NavigationContainer>
+    <>
+      <NavigationContainer>
+        {userData === null && !lockScreen ? (
+          <AuthStack />
+        ) : userData !== null && lockScreen ? (
+          <LockScreen />
+        ) : (
+          <AppStack />
+        )}
+      </NavigationContainer>
+    </>
   );
 };
 

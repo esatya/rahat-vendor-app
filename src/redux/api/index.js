@@ -1,12 +1,22 @@
 import axios from 'axios';
 
-const API_URL = 'https://agency-stage.rahatapp.com/api/v1/vendors';
-const APP_SETTINGS_URL = 'https://agency-stage.rahatapp.com/api/v1/app/settings';
+export const apiRegisterVendor = (agencyUrl, data) =>
+  axios.post(`${agencyUrl}/api/v1/vendors/register`, data);
 
-export const apiRegisterVendor = data =>
-  axios.post(`${API_URL}/register`, data);
+export const apiGetUserByWalletAddress = (agencyUrl, data) =>
+  axios.get(`${agencyUrl}/api/v1/vendors/${data}`);
 
-export const apiGetUserByWalletAddress = data =>
-  axios.get(`${API_URL}/${data}`);
+export const apiGetRestoreUserData = (agencyUrl, data) =>
+  axios.get(`${agencyUrl}/api/v1/vendors/${data}`);
 
-export const apiGetAppSettings = () => axios.get(`${APP_SETTINGS_URL}`);
+export const apiGetAppSettings = agencyUrl =>
+  axios.get(`${agencyUrl}/api/v1/app/settings`);
+
+export const apiGetPackageDetail = id =>
+  axios.get(`${agencyUrl}/api/v1/nft/token/${id}`);
+
+export const apiGetPackageBalanceInFiat = data =>
+  axios.post(
+    `${'https://agency-nft.rahat.io/api/v1/nft/total-package-balance'}`,
+    data,
+  );

@@ -1,28 +1,27 @@
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
+
 import {Logo} from '../../../assets/images';
-import colors from '../../../constants/colors';
-import {Spacing} from '../../../constants/utils';
+import {Spacing, colors} from '../../constants';
 import {CustomButton, SmallText} from '../../components';
 
 const GetStartedScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
       <View />
-      <View style={{justifyContent: 'center', alignItems: 'center'}}>
+      <View style={styles.content}>
         <Logo />
-        <SmallText center>
-          Supporting vulnerable communities with a simple and efficient relief
-          distribution platform.
+        <SmallText center style={styles.text}>
+            Supporting vulnerable communities with a simple and efficient relief distribution platform
         </SmallText>
       </View>
-      <View style={{marginBottom: Spacing.vs * 2}}>
+      <View style={styles.buttonContainer}>
         <CustomButton
-          title="Create new account"
+          title={'Create new account'}
           onPress={() => navigation.navigate('SignupScreen')}
         />
         <CustomButton
-          title="Restore account"
+          title={'Restore account'}
           color={colors.green}
           onPress={() => navigation.navigate('RestoreAccountScreen')}
         />
@@ -40,4 +39,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.hs,
     justifyContent: 'space-between',
   },
+  text: {paddingTop: Spacing.vs * 2},
+  buttonContainer: {marginBottom: Spacing.vs * 2},
+  content: {justifyContent: 'center', alignItems: 'center'},
 });

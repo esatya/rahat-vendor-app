@@ -133,12 +133,16 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
+    dexOptions {
+        javaMaxHeapSize "4g"
+        }
+
     defaultConfig {
         applicationId "com.rahatvendor"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 25
+        versionName "2.0.4"
         missingDimensionStrategy 'react-native-camera', 'general'
     }
     splits {
