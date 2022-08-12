@@ -14,6 +14,7 @@ import {
 } from '../../components';
 
 const BackupMnemonicScreen = ({ navigation, route }) => {
+  const {t} = useTranslation();
   const { t } = useTranslation();
   const walletInfo = useSelector(state => state.walletReducer.walletInfo);
 

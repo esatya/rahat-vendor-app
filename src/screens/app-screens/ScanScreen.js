@@ -29,7 +29,7 @@ const ScanScreen = ({ navigation, route }) => {
       })
     }
     if (phoneDetails[0] === 'phone') {
-      phone = phoneDetails[1].substr(4, phoneDetails[1]?.length);
+      phone = phoneDetails[1].substr(4, phoneDetails[1]?.length).substr(4, phoneDetails[1]?.length);
     }
     if (amountDetails[0] === 'amount') {
       amount = amountDetails[1];
@@ -38,6 +38,10 @@ const ScanScreen = ({ navigation, route }) => {
     if (phone !== undefined && amount !== undefined) {
       navigation.navigate('ChargeDrawerScreen', { phone, amount });
     }
+    navigation.navigate('TransferTokenScreen', {
+      destinationAddress: data,
+      fromScan: true,
+    });
   };
 
   const onTransferScan = res => {
@@ -83,7 +87,7 @@ const ScanScreen = ({ navigation, route }) => {
           color={colors.white}
           fontSize={FontSize.small / 1.1}
           style={styles.text}>
-          Please align the QR code within the frame
+          {t('Please align the QR code within the frame')}
         </PoppinsMedium>
       </View>
 
@@ -95,7 +99,7 @@ const ScanScreen = ({ navigation, route }) => {
             paddingHorizontal: Spacing.hs / 3,
             fontSize: FontSize.small,
           }}>
-          Powered By
+          {t('Powered By')}
         </RegularText>
         <RumsanLogo />
       </View>

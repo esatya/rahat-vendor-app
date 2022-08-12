@@ -28,9 +28,14 @@ const CheckApprovalScreen = ({ navigation }) => {
     dispatch(
       getUserByWalletAddress(
         activeAppSettings.agencyUrl,
+        
+        activeAppSettings.agencyUrl,
         userData.wallet_address,
+       
         onSuccess,
+       
         onError,
+      ,
       ),
     );
   }, []);
@@ -72,7 +77,7 @@ const CheckApprovalScreen = ({ navigation }) => {
             </PoppinsMedium>
             <Card>
               <SmallText color={colors.black}>
-                Please contact your agency for approval
+                {t('Please contact your agency for approval')}
               </SmallText>
               <View
                 style={styles.rowView}>

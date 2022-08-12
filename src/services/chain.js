@@ -7,6 +7,7 @@ const ABI = {
   ERC20: require(`../../assets/contracts/RahatERC20.json`),
   ERC721: require(`../../assets/contracts/erc721.json`),
   ERC1155: require('../../assets/contracts/RahatERC1155.json'),
+  ERC1155: require('../../assets/contracts/RahatERC1155.json'),
 };
 
 const getAgencyDetails = async (agencyAddress, tokenAddress, nftAddress) => {
@@ -29,20 +30,32 @@ const getAgencyDetails = async (agencyAddress, tokenAddress, nftAddress) => {
     provider,
   );
 
+
+  const nftContract = new ethers.Contract(
+    nftAddress,
+    ABI.ERC1155.abi,
+    provider,
+  );
+
   return {
     details,
     provider,
     rahatContract,
     tokenContract,
     nftContract,
+    nftContract,
   };
 };
 
-const RahatService = (agencyAddress, wallet, tokenAddress, nftAddress) => {
+const RahatService = (agencyAddress, wallet, tokenAddress, nftAddress, tokenAddress, nftAddress) => {
   return {
     async getContract() {
       const agency = await getAgencyDetails(
+        
         agencyAddress,
+        tokenAddress,
+        nftAddress,
+      ,
         tokenAddress,
         nftAddress,
       );
@@ -83,7 +96,7 @@ const RahatService = (agencyAddress, wallet, tokenAddress, nftAddress) => {
 
       return tx.wait();
     },
-    async verifyChargeForERC1155(phone, otp, tokenId) {
+    async verifyChargeForERC1155ForERC1155(phone, otp, tokenId, tokenId) {
       const contract = await this.getContract();
       const tx = await contract.getERC1155FromClaim(
         Number(phone),
@@ -96,7 +109,7 @@ const RahatService = (agencyAddress, wallet, tokenAddress, nftAddress) => {
   };
 };
 
-const TokenService = (agencyAddress, wallet, tokenAddress, nftAddress) => {
+const TokenService = (agencyAddress, wallet, tokenAddress, nftAddress, tokenAddress, nftAddress) => {
   return {
     async getContract() {
       const agency = await getAgencyDetails(

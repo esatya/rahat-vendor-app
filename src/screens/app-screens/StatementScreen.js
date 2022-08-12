@@ -35,10 +35,14 @@ const StatementScreen = ({ navigation }) => {
           </View>
         </Card>
         <Card>
-          {transactions?.map((item, index) => (
+          {transactions??.map((item, index) => (
             <IndividualStatement
               lastItem={index === transactions.length - 1 ? true : false}
+              lastItem={index === transactions.length - 1 ? true : false}
               key={index}
+              balanceType={item?.balanceType}
+              transactionType={item?.transactionType}
+              icon={item?.packages ? item.packages[0]?.imageUri : item?.imageUri}
               balanceType={item?.balanceType}
               transactionType={item?.transactionType}
               icon={item?.packages ? item.packages[0]?.imageUri : item?.imageUri}
@@ -75,7 +79,7 @@ const StatementScreen = ({ navigation }) => {
             />
           ))}
         </Card>
-      </ScrollView>
+      </ScrollScrollView>
     </>
   );
 };

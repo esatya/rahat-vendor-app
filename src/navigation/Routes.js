@@ -30,33 +30,86 @@ const Routes = () => {
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextAppState => {
       if (nextAppState === 'background') {
-        !!rahatPasscode  &&
-          !backingUpToDriveStatus &&
-          dispatch(lockApp());
+        rahatPasscode !== '' &&
+          !backupToDriveStatus &&
+          dispatch({ type: 'LOCK_APP' });
       }
     });
 
     return () => {
       subscription.remove();
     };
-  }, [rahatPasscode, backingUpToDriveStatus]);
+  }, [rahatPasscode, backupToDriveStatus]);
 
   useEffect(() => {
-    i18n.changeLanguage(activeLanguage?.name);
-  }, [activeLanguage]);
+    AsyncStorage.getItem('activeLanguage')
+      .then(res => {
+        if (res !== null) {
+          const activeLanguage = JSON.parse(res);
+          i18n.changeLanguage(activeLanguage);
+        }
+      })
+      .catch(e => { });
+  }, []);
 
   useEffect(() => {
-    setAuthData({ initializing: true });
-    if (walletInfo) {
-      const provider = new ethers.providers.JsonRpcProvider(
-        activeAppSettings?.networkUrl,
-      );
+    const keys = [
+      'walletInfo',
+      'storedAppSettings',
+      'transactions',
+      'storedTokenIds'
+    ];
 
-      const temp = new ethers.Wallet(walletInfo.privateKey);
-      const connectedWallet = temp.connect(provider);
-      dispatch(setWalletData({ wallet: connectedWallet }));
-      dispatch(setAuthData());
-      return
+    if (!wallet) {
+      AsyncStorage.multiGet(keys)
+        .then(res => {
+          const walletInfo = JSON.parse(res[0][1]);
+          const storedAppSettings = JSON.parse(res[1][1]);
+          const storedTransactions = JSON.parse(res[2][1]);
+          const storedTokenIds = JSON.parse(res[3][1]);
+
+          if (walletInfo !== null) {
+            let activeAppSetting = storedAppSettings[0];
+            let provider = new ethers.providers.JsonRpcProvider(
+              activeAppSetting?.networkUrl,
+            );
+
+            if (storedTransactions !== null) {
+              const activeAgencyTransactions =  getActiveAgencyTransactions(activeAppSetting, storedTransactions);
+              dispatch({
+                type: 'SET_TRANSACTIONS',
+                transactions: activeAgencyTransactions,
+              });
+            }
+
+            if (storedTokenIds !== null) {
+              let activeAgencyStoredAssets = storedTokenIds?.filter(item => item.agencyUrl === activeAppSetting?.agencyUrl);
+              
+              activeAgencyStoredAssets?.length && dispatch({ type: 'SET_STORED_TOKEN_IDS', storedTokenIds: activeAgencyStoredAssets })
+            }
+            const walletRandom = new ethers.Wallet(
+              walletInfo.privateKey,
+              provider,
+            );
+            dispatch({ type: 'SET_WALLET_INFO', payload: walletInfo });
+            dispatch(setWallet(walletRandom));
+            dispatch(setAppSettings(storedAppSettings,activeAppSetting));
+            dispatch(
+              getUserByWalletAddress(
+                activeAppSetting.agencyUrl,
+                walletInfo.address,
+                onGetUserSuccess,
+                onGetUserError,
+              ),
+            );
+          } else {
+            setInitializing(false);
+          }
+        })
+        .catch(e => {
+          // console.log(e,);
+          setInitializing(false);
+        });
     }
     
     dispatch(setAuthData())

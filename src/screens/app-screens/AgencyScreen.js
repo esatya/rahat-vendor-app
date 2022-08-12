@@ -100,6 +100,16 @@ const AgencyScreen = ({ navigation }) => {
   } 
 
 
+  const handleSwitchAgency = agencyUrl => {
+    const newActiveAppSettings = appSettings.find(
+      setting => setting.agencyUrl === agencyUrl,
+    );
+    dispatch(
+      switchAgency(newActiveAppSettings, wallet, () =>
+        navigation.navigate('HomeScreen', {refresh: true}),
+      ),
+    );
+  };
   return (
     <>
       <CustomHeader

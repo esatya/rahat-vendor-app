@@ -16,6 +16,7 @@ import { setAuthData } from '../../redux/actions/authActions';
 
 const RegisterSuccessScreen = ({navigation, route}) => {
   const {t} = useTranslation();
+  const {t} = useTranslation();
   const dispatch = useDispatch();
   const wallet = useSelector(state => state.walletReducer.wallet);
   const {data} = route?.params;
@@ -34,7 +35,7 @@ const RegisterSuccessScreen = ({navigation, route}) => {
   const WordComponent = ({count, secret}) => (
     <View style={styles.wordView}>
       <SmallText noPadding style={{paddingTop: Spacing.vs / 2}}>
-        {t('Word')}: {`${t(count)}`}
+        {t('{t('Word')}')}: {`${t(`${t(count)}`)}`}
       </SmallText>
       <RegularText color={colors.black}>{secret}</RegularText>
     </View>

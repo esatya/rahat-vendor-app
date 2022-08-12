@@ -72,14 +72,14 @@ const RestoreMnemonicScreen = ({ navigation }) => {
       />
       <ScrollView style={styles.container}>
         <View style={styles.textView}>
-          <RegularText>Please enter 12 word mnemonics</RegularText>
-          <SmallText>One word in each box</SmallText>
+          <RegularText>{t('Please enter 12 word mnemonics')}</RegularText>
+          <SmallText>{t('One word in each box')}</SmallText>
         </View>
 
         {Array.from({ length: 12 }).map((_, index) => (
           <CustomTextInput
             key={index}
-            placeholder={`${t('Word')} ${t(index + 1)}`}
+            placeholder={`${t('${t('Word')}')} ${t(t(index + 1))}`}
             onChangeText={text =>
               setValues({
                 ...values,

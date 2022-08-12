@@ -1,3 +1,4 @@
+import {t} from 'i18next';
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
 
@@ -6,6 +7,7 @@ import {Spacing, colors} from '../../constants';
 import {CustomButton, SmallText} from '../../components';
 
 const GetStartedScreen = ({navigation}) => {
+  const {t,} = useTranslation();
   return (
     <View style={styles.container}>
       <View />

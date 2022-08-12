@@ -176,6 +176,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     paddingHorizontal: Spacing.hs,
     paddingVertical: Spacing.vs * 1.5,
+    paddingVertical: Spacing.vs * 1.5,
   },
   header: {
     paddingTop: androidPadding,

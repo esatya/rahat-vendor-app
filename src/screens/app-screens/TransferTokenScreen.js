@@ -185,6 +185,14 @@ const TransferTokenScreen = ({ navigation, route }) => {
         onBackPress={() => navigation.pop()}
       />
       <View style={styles.container}>
+        <CustomLoader message={loaderMessage} show={showLoader} />
+        <CustomPopup
+          show={showPopup}
+          message={popupMessage}
+          messageType={popupMessageType}
+          popupType={popupType}
+          onConfirm={() => setValues({...values, showPopup: false})}
+        />
         <Card>
           <RegularText
             color={colors.black}
@@ -235,7 +243,8 @@ const TransferTokenScreen = ({ navigation, route }) => {
             title={t('Transfer Token')}
             color={colors.green}
             width={widthPercentageToDP(80)}
-            // onPress={() => navigation.navigate('AgencyScreen')}
+            // // onPress={() => navigation.navigate('AgencyScreen')}
+            onPress={handleTransferToken}
             onPress={handleTransferToken}
           />
         </Card>

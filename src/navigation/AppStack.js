@@ -102,6 +102,7 @@ const Tabs = () => {
 };
 
 const AppStack = () => {
+  const {lockScreen} = useSelector(state => state.auth);
   return (
     <>
       <Stack.Navigator

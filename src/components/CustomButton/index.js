@@ -29,6 +29,11 @@ export const CustomButton = ({
   fontFamily,
   fontSize,
   paddingVertical,
+  borderRadius,
+  capitalizeText,
+  fontFamily,
+  fontSize,
+  paddingVertical,
 }) => {
   const { t } = useTranslation();
   return (
@@ -92,7 +97,7 @@ const styles = StyleSheet.create({
   buttonView: {
     alignSelf: 'center',
     overflow: 'hidden',
-    // borderRadius: 10,
+    // // borderRadius: 10,
     marginVertical: Spacing.vs / 2,
   },
   button: {

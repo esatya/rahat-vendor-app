@@ -119,16 +119,16 @@ const SignupScreen = ({ navigation }) => {
   useEffect(() => {
     switch (activePage) {
       case 1:
-        setPageTitle(`${t('Profile Photo')}`);
+        setPageTitle(`${t(`${t('Profile Photo')}`)}`);
         break;
       case 2:
-        setPageTitle(`${t('Identity Photo')}`);
+        setPageTitle(`${t(`${t('Identity Photo')}`)}`);
         break;
       case 3:
-        setPageTitle(`${t('Terms and Conditions')}`);
+        setPageTitle(`${t(`${t('Terms and Conditions')}`)}`);
         break;
       default:
-        setPageTitle(`${t('Register')}`);
+        setPageTitle(`${t(`${t('Register')}`)}`);
         break;
     }
   }, [activePage]);
@@ -145,6 +145,7 @@ const SignupScreen = ({ navigation }) => {
   const onWalletCreateSuccess = wallet => {
     LoaderModal.hide();
     const wallet_address = wallet.address;
+    console.log('wallet created', wallet);
 
     const data = {
       name,
@@ -169,6 +170,25 @@ const SignupScreen = ({ navigation }) => {
     LoaderModal.hide();
     alert(String(e), 'wallet create error');
   };
+
+  // const onRegisterSuccess = data => {
+  //   console.log(data, 'data');
+  //   navigation.replace('RegisterSuccessScreen', {data});
+  // };
+
+  // const onRegisterError = e => {
+  //   AsyncStorage.clear()
+  //     .then(() => {
+  //       console.log(e.response);
+  //       console.log(e);
+  //       const errorMessage = e.response ? e.response : e.message;
+  //       alert(errorMessage, 'register error');
+  //       setValues({...values, isSubmitting: false});
+  //     })
+  //     .catch(e => {
+  //       console.log(e, 'asycn clear error');
+  //     });
+  // };
 
   const handleTextChange = (value, name) => {
     setValues({
@@ -332,6 +352,7 @@ const SignupScreen = ({ navigation }) => {
           title={t('Previous')}
           color={colors.gray}
           outlined
+          outlined
           onPress={() => {
             setActivePage(prev => prev - 1);
             setValues({ ...values, registerErrorFlag: 0 });
@@ -362,6 +383,7 @@ const SignupScreen = ({ navigation }) => {
         <CustomButton
           title={t('Previous')}
           color={colors.gray}
+          outlined
           outlined
           onPress={() => setActivePage(prev => prev - 1)}
         />
@@ -491,9 +513,12 @@ const SignupScreen = ({ navigation }) => {
     <View style={styles().container}>
       <SignupHeader pageTitle={pageTitle} />
       {activePage < 3 && (
+        {activePage < 3 && (
         <RenderPageIndicator activePage={activePage} agreeTC={agreeTC} />
       )}
+      )}
       {renderModal()}
+      <CustomLoader message={loaderMessage} show={isSubmitting} />
       {activePage === 0 && registerPage()}
       {activePage === 1 && profilePicturePage()}
       {activePage === 2 && identityPicturePage()}
@@ -553,8 +578,8 @@ const styles = props =>
       resizeMode: 'contain',
     },
     buttonsView: {
-      // flexDirection: 'row',
-      // justifyContent: 'space-between',
+      // // flexDirection: 'row',
+      // // justifyContent: 'space-between',
       marginBottom: Spacing.vs * 2,
     },
     uploadIcon: { paddingVertical: Spacing.vs },

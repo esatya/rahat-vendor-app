@@ -14,7 +14,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     marginHorizontal: Spacing.hs / 5,
     marginVertical: Spacing.vs,
-    paddingVertical: Spacing.vs ,
+    paddingVertical: Spacing.vs  ,
     paddingHorizontal: Spacing.hs,
   },
 });

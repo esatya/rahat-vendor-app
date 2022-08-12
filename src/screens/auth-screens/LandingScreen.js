@@ -32,8 +32,8 @@ const LandingScreen = ({ navigation }) => {
           style={{ height: hp(40), width: wp(90), marginTop: Spacing.vs * 2 }}
         />
         <View>
-          <RegularText center>{item.title}</RegularText>
-          <SmallText center>{item.description}</SmallText>
+          <RegularText center>{t(item.title)}</RegularText>
+          <SmallText center>{t(item.description)}</SmallText>
         </View>
       </View>
     );

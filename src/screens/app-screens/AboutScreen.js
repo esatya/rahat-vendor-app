@@ -5,6 +5,7 @@ import { Spacing, colors } from '../../constants';
 import { CustomHeader, RegularText, SmallText } from '../../components';
 
 const AboutScreen = ({ navigation }) => {
+  const {t} = useTranslation();
   return (
     <>
       <CustomHeader
@@ -22,7 +23,7 @@ const AboutScreen = ({ navigation }) => {
           </SmallText>
         </View>
         <View style={styles.aboutView}>
-          <RegularText>Our Mission</RegularText>
+          <RegularText>{t('Our Mission')}</RegularText>
           <SmallText style={styles.description}>
             We aim to make humanitarian aid distribution efficient and transparent to support marginalized communities.
 

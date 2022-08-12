@@ -195,6 +195,8 @@ const HomeScreen = ({ navigation, route }) => {
     }
     return () => (isMounted = false);
   }, [route]);
+    return () => (isMounted = false);
+  }, [route]);
 
   useEffect(() => {
     getPackageBalance();
@@ -262,11 +264,16 @@ const HomeScreen = ({ navigation, route }) => {
         }}
       />
 
+
       <ScrollView
         style={styles.container}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }>
+        <CustomLoader
+          show={showLoader}
+          message={`${t('Switching agency.')} ${t('Please wait...')}`}
+        />
         <Card>
           <View style={[styles.rowView, { paddingBottom: Spacing.vs / 2 }]}>
             <SmallText noPadding color={colors.blue}>
@@ -409,6 +416,7 @@ const HomeScreen = ({ navigation, route }) => {
         )}
       </ScrollView>
       {renderBottomSheet()}
+      {renderBottomSheet()}
     </>
   );
 };
@@ -424,8 +432,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     paddingTop: Spacing.vs * 2,
   },
-  headerTitle: { fontFamily: 'Lora-Regular', fontSize: FontSize.regular },
-  headerRightIcon: { height: 80, width: 30, borderRadius: 100 },
+  headerTitle: {  fontFamily: 'Lora-Regular', fontSize: FontSize.regular  },
+  headerRightIcon: {  height: 80, width: 30, borderRadius: 100  },
   container: {
     backgroundColor: colors.white,
     paddingHorizontal: Spacing.hs,

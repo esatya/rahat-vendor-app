@@ -106,13 +106,27 @@ const PasscodeScreen = ({ navigation }) => {
         onBackPress={() => navigation.pop()}
       />
 
+
       <View style={styles.container}>
+        <CustomLoader
+          show={isSubmitting}
+          message={`${t('Setting up your passcode.')} ${t('Please wait...')}`}
+        />
+
+        <CustomPopup
+          show={showPopup}
+          popupType={popupType}
+          messageType={messageType}
+          message={message}
+          onConfirm={() => setPopupStates({...popupStates, showPopup: false})}
+        />
+
         <View>
           <View style={styles.info}>
             <RegularText color={colors.black}>
-              {t('Rahat passcode can be used to')}:
+              {t('{t('Rahat passcode can be used to')}')}:
             </RegularText>
-            <SmallText>{t('Unlock Rahat Vendor App')}</SmallText>
+            <SmallText>{t('{t('Unlock Rahat Vendor App')}')}</SmallText>
           </View>
           <View style={styles.inputView}>
             <RegularText style={{ paddingVertical: Spacing.vs }}>
@@ -196,6 +210,7 @@ const PasscodeScreen = ({ navigation }) => {
           disabled={
             confirmPasscode.length === 4 && passcode.length === 4 ? false : true
           }
+          onPress={handleSetPasscode}
           onPress={handleSetPasscode}
         />
       </View>

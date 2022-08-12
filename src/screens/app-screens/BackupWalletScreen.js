@@ -157,6 +157,159 @@ const BackupWalletScreen = ({ navigation }) => {
     text.length === 6 && Keyboard.dismiss();
   };
 
+  const dispatch = useDispatch();
+  const {t} = useTranslation();
+  let gdrive = new GDrive();
+  const {walletInfo} = useSelector(state => state.wallet);
+
+  const [values, setValues] = useState({
+    showLoader: false,
+    loaderMessage: '',
+    showPopup: false,
+    popupType: '',
+    popupMessageType: '',
+    popupMessage: '',
+    showPasscodeModal: false,
+    passcode: '',
+  });
+
+  const {
+    showLoader,
+    loaderMessage,
+    popupMessage,
+    popupMessageType,
+    popupType,
+    showPopup,
+    showPasscodeModal,
+    passcode,
+  } = values;
+
+  useEffect(() => {
+    GoogleSignin.signOut();
+  }, []);
+
+  const handleBackupToDrive = async () => {
+    setValues(values => ({
+      ...values,
+      loaderMessage: `${t('Encrypting your wallet.')} ${t('Please wait...')}`,
+    }));
+
+    try {
+      let encryptedData = await encryptionHelper(walletInfo, passcode);
+      if (encryptedData.cipher) {
+        await gdrive.files
+          .newMultipartUploader()
+          .setData(JSON.stringify(encryptedData), MimeTypes.BINARY)
+          .setRequestBody({
+            name: 'rahat_v2_backup',
+          })
+          .execute();
+        setValues(values => ({
+          ...values,
+          showLoader: false,
+          loaderMessage: '',
+          showPopup: true,
+          popupType: 'alert',
+          popupMessageType: `${t('Success')}`,
+          popupMessage: `${t(
+            'Wallet backed up to your google drive successfully',
+          )}`,
+        }));
+      }
+    } catch (e) {
+      console.log(e);
+      setValues(values => ({
+        ...values,
+        showLoader: false,
+        showPopup: true,
+        popupType: 'alert',
+        popupMessageType: `${t('Error')}`,
+        popupMessage: `${t('Something went wrong. Please try again')}`,
+      }));
+    }
+  };
+
+  const initializeGDrive = async () => {
+    setValues(values => ({
+      ...values,
+      showLoader: true,
+      loaderMessage: `${t('Checking your drive for backup')}`,
+    }));
+    try {
+      gdrive.accessToken = (await GoogleSignin.getTokens()).accessToken;
+      let data = await gdrive.files.list({
+        q: new ListQueryBuilder()
+          .e('name', 'rahat_v2_backup')
+          .and()
+          .e('mimeType', 'application/octet-stream'),
+      });
+      if (data.files?.length !== 0) {
+        return setValues(values => ({
+          ...values,
+          showLoader: false,
+          showPopup: true,
+          popupType: 'alert',
+          popupMessageType: `${t('Info')}`,
+          popupMessage: `${t(
+            'Your wallet is already backed up in your google drive',
+          )}`,
+        }));
+      }
+      handleBackupToDrive();
+    } catch (e) {
+      console.log(e);
+      setValues(values => ({
+        ...values,
+        showLoader: false,
+        showPopup: true,
+        popupType: 'alert',
+        popupMessageType: `${t('Error')}`,
+        popupMessage: `${t('Something went wrong. Please try again')}`,
+      }));
+    }
+  };
+
+  const googleSignin = async () => {
+    dispatch({type: 'BACKUP_TO_DRIVE_STATUS', payload: true});
+
+    try {
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      initializeGDrive();
+    } catch (error) {
+      dispatch({type: 'BACKUP_TO_DRIVE_STATUS', payload: false});
+      console.log(error);
+      setValues(values => ({
+        ...values,
+        showLoader: false,
+        showPopup: true,
+        popupType: 'alert',
+        popupMessageType: `${t('Error')}`,
+      }));
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        setValues(values => ({
+          ...values,
+          popupMessage: `${t('Signin Cancelled')}`,
+        }));
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        setValues(values => ({
+          ...values,
+          popupMessage: `${t('Play services not available')}`,
+        }));
+      } else {
+        setValues(values => ({
+          ...values,
+          popupMessage: `${t('Something went wrong. Please try again')}`,
+        }));
+      }
+    }
+  };
+
+  const handleSetupPasscode = text => {
+    setValues({...values, passcode: text});
+    text.length === 6 && Keyboard.dismiss();
+  };
+
   return (
     <>
       <CustomHeader
@@ -185,7 +338,7 @@ const BackupWalletScreen = ({ navigation }) => {
             {t('Backup your wallet')}
           </RegularText>
           <SmallText color={colors.danger} noPadding>
-            {t('Important! Read very carefully')}
+            {t('{t('Important! Read very carefully')}')}
           </SmallText>
           <SmallText noPadding style={styles.description}>
             {t(
@@ -195,7 +348,7 @@ const BackupWalletScreen = ({ navigation }) => {
         </View>
         <View style={styles.aboutView}>
           <SmallText>
-            {t('Option 1: Write down your 12 secret words (mnemonic).')}
+            {t('{t('Option 1: Write down your 12 secret words (mnemonic).')}')}
           </SmallText>
           <SmallText style={styles.description}>
             {t(
