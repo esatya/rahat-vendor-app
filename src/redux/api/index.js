@@ -20,3 +20,6 @@ export const apiGetPackageBalanceInFiat = data =>
     `${'https://agency-nft.rahat.io/api/v1/nft/total-package-balance'}`,
     data,
   );
+
+export const apiGetWards = agencyUrl =>
+  axios.get(`https://unicef-api.xa.rahat.io/api/v1/beneficiaries/wards`);

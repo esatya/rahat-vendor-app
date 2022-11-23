@@ -32,6 +32,7 @@ import {
 import {FontSize, Spacing, colors} from '../../constants';
 import {getWallet} from '../../redux/actions/walletActions';
 import {storeRegistrationFormData} from '../../redux/actions/authActions';
+import {apiGetWards} from '../../redux/api';
 
 let androidPadding = 0;
 if (Platform.OS === 'android') {
@@ -87,8 +88,9 @@ const SignupScreen = ({navigation}) => {
   const [pageTitle, setPageTitle] = useState('');
   const [agreeTC, setAgreeTC] = useState(false);
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(null);
+  const [wardNum, setWardNum] = useState(null);
   const [items, setItems] = useState([]);
+  const [wardCheckErr, setWardCheckErr] = useState(false);
 
   const inputRef = useRef([]);
 
@@ -97,6 +99,7 @@ const SignupScreen = ({navigation}) => {
     phone: '',
     address: '',
     email: '',
+    ward: '',
     // govt_id: '',
     profileImageUrl: '',
     idFrontImageUrl: '',
@@ -138,6 +141,17 @@ const SignupScreen = ({navigation}) => {
     }
   }, [activePage]);
 
+  useEffect(() => {
+    async function getWards() {
+      let {data: wards} = await apiGetWards();
+      wards = wards.map(wrd => {
+        return {label: wrd, value: wrd};
+      });
+      setItems(wards);
+    }
+    getWards();
+  }, []);
+
   const handleSubmit = () => {
     LoaderModal.show({message: 'Creating your wallet. Please wait...'});
     setTimeout(() => {
@@ -174,6 +188,10 @@ const SignupScreen = ({navigation}) => {
   };
 
   const handleTextChange = (value, name) => {
+    console.log(value, name);
+    if (name === 'ward') {
+      setWardCheckErr(false);
+    }
     setValues({
       ...values,
       [name]: value,
@@ -187,15 +205,17 @@ const SignupScreen = ({navigation}) => {
       phone === '' ||
       email === '' ||
       ward === '' ||
+      ward === null ||
       // govt_id === '' ||
       !email.includes('@')
     ) {
       setValues({...values, registerErrorFlag: 1});
+      setWardCheckErr(true);
       return;
     }
     setActivePage(prev => prev + 1);
   };
-
+  console.log({ward});
   const registerPage = () => (
     <View style={styles().pageView}>
       <View>
@@ -265,20 +285,31 @@ const SignupScreen = ({navigation}) => {
         />
         <DropDownPicker
           open={open}
-          value={value}
+          value={wardNum}
           items={items}
           setOpen={setOpen}
-          setValue={setValue}
+          setValue={setWardNum}
           setItems={setItems}
-          containerStyle={{
-            borderColor: colors.gray,
-          }}
+          placeholder={t('Ward')}
           textStyle={{
             fontSize: FontSize.medium,
             color: colors.gray,
+            paddingHorizontal: 7.5,
           }}
           style={{borderColor: colors.gray}}
+          returnKeyType="next"
+          autoCapitalize="none"
+          blurOnSubmit={false}
+          onChangeValue={value => handleTextChange(value, 'ward')}
         />
+        {wardCheckErr ? (
+          <SmallText
+            noPadding
+            color={colors.danger}
+            style={{paddingHorizontal: Spacing.hs, paddingTop: Spacing.vs / 5}}>
+            {`${t('Ward')} ${t('is required')}`}
+          </SmallText>
+        ) : null}
         {/* <CustomTextInput
           placeholder="Government Issued Document No."
           value={govt_id}
