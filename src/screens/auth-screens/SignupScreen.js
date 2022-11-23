@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   View,
   Modal,
@@ -13,12 +13,13 @@ import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import { useDispatch } from 'react-redux';
-import { RNToasty } from 'react-native-toasty';
-import { useTranslation } from 'react-i18next';
+import {useDispatch} from 'react-redux';
+import {RNToasty} from 'react-native-toasty';
+import {useTranslation} from 'react-i18next';
 import CheckBox from '@react-native-community/checkbox';
 import ImagePicker from 'react-native-image-crop-picker';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 import {
   SmallText,
@@ -28,9 +29,9 @@ import {
   PoppinsMedium,
   CustomTextInput,
 } from '../../components';
-import { FontSize, Spacing, colors } from '../../constants';
-import { getWallet } from '../../redux/actions/walletActions';
-import { storeRegistrationFormData } from '../../redux/actions/authActions';
+import {FontSize, Spacing, colors} from '../../constants';
+import {getWallet} from '../../redux/actions/walletActions';
+import {storeRegistrationFormData} from '../../redux/actions/authActions';
 
 let androidPadding = 0;
 if (Platform.OS === 'android') {
@@ -46,18 +47,18 @@ const imagePickerConfigs = {
   includeBase64: true,
 };
 
-const profilePickerConfigs = { ...imagePickerConfigs, width: 400, height: 400 };
-const idPickerConfigs = { ...imagePickerConfigs, width: wp(90), height: hp(35) };
+const profilePickerConfigs = {...imagePickerConfigs, width: 400, height: 400};
+const idPickerConfigs = {...imagePickerConfigs, width: wp(90), height: hp(35)};
 
-const SignupHeader = ({ pageTitle }) => (
+const SignupHeader = ({pageTitle}) => (
   <SafeAreaView style={styles().header}>
-    <PoppinsMedium style={{ fontSize: FontSize.large }}>
+    <PoppinsMedium style={{fontSize: FontSize.large}}>
       {pageTitle}
     </PoppinsMedium>
   </SafeAreaView>
 );
 
-const DotIndicator = ({ step, activePage }) => (
+const DotIndicator = ({step, activePage}) => (
   <View style={styles(activePage >= step ? 'active' : 'inactive').dot}>
     {activePage >= step + 1 && (
       <AntDesign name="check" color={colors.white} size={18} />
@@ -65,11 +66,11 @@ const DotIndicator = ({ step, activePage }) => (
   </View>
 );
 
-const LineIndicator = ({ step, activePage }) => (
+const LineIndicator = ({step, activePage}) => (
   <View style={styles(activePage >= step ? 'active' : 'inactive').line} />
 );
 
-const RenderPageIndicator = ({ activePage }) => (
+const RenderPageIndicator = ({activePage}) => (
   <View style={styles().activePageIndicatorView}>
     <DotIndicator step={0} activePage={activePage} />
     <LineIndicator step={1} activePage={activePage} />
@@ -79,12 +80,15 @@ const RenderPageIndicator = ({ activePage }) => (
   </View>
 );
 
-const SignupScreen = ({ navigation }) => {
+const SignupScreen = ({navigation}) => {
   const dispatch = useDispatch();
-  const { t } = useTranslation();
+  const {t} = useTranslation();
   const [activePage, setActivePage] = useState(0);
   const [pageTitle, setPageTitle] = useState('');
   const [agreeTC, setAgreeTC] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(null);
+  const [items, setItems] = useState([]);
 
   const inputRef = useRef([]);
 
@@ -107,6 +111,7 @@ const SignupScreen = ({ navigation }) => {
     address,
     email,
     phone,
+    ward,
     // govt_id,
     profileImageUrl,
     idFrontImageUrl,
@@ -136,10 +141,8 @@ const SignupScreen = ({ navigation }) => {
   const handleSubmit = () => {
     LoaderModal.show({message: 'Creating your wallet. Please wait...'});
     setTimeout(() => {
-      dispatch(
-        getWallet('create', onWalletCreateSuccess, onWalletCreateError),
-      );
-    }, 500)
+      dispatch(getWallet('create', onWalletCreateSuccess, onWalletCreateError));
+    }, 500);
   };
 
   const onWalletCreateSuccess = wallet => {
@@ -183,10 +186,11 @@ const SignupScreen = ({ navigation }) => {
       address === '' ||
       phone === '' ||
       email === '' ||
+      ward === '' ||
       // govt_id === '' ||
       !email.includes('@')
     ) {
-      setValues({ ...values, registerErrorFlag: 1 });
+      setValues({...values, registerErrorFlag: 1});
       return;
     }
     setActivePage(prev => prev + 1);
@@ -224,7 +228,6 @@ const SignupScreen = ({ navigation }) => {
             `${t('Phone Number')} ${t('is required')}`
           }
         />
-
         <CustomTextInput
           placeholder={t('Email')}
           value={email}
@@ -233,10 +236,10 @@ const SignupScreen = ({ navigation }) => {
             registerErrorFlag === 1 && email === ''
               ? `${t('Email')} ${t('is required')}`
               : registerErrorFlag === 1 &&
-              !email.match(
-                /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
-              ) &&
-              `${t('Please enter valid email')}`
+                !email.match(
+                  /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
+                ) &&
+                `${t('Please enter valid email')}`
           }
           returnKeyType="next"
           autoCapitalize="none"
@@ -260,7 +263,22 @@ const SignupScreen = ({ navigation }) => {
             `${t('Address')} ${t('is required')}`
           }
         />
-
+        <DropDownPicker
+          open={open}
+          value={value}
+          items={items}
+          setOpen={setOpen}
+          setValue={setValue}
+          setItems={setItems}
+          containerStyle={{
+            borderColor: colors.gray,
+          }}
+          textStyle={{
+            fontSize: FontSize.medium,
+            color: colors.gray,
+          }}
+          style={{borderColor: colors.gray}}
+        />
         {/* <CustomTextInput
           placeholder="Government Issued Document No."
           value={govt_id}
@@ -284,7 +302,7 @@ const SignupScreen = ({ navigation }) => {
     </View>
   );
 
-  const CustomImageView = ({ type, title, imageSource }) => {
+  const CustomImageView = ({type, title, imageSource}) => {
     return (
       <Pressable
         style={[
@@ -296,7 +314,7 @@ const SignupScreen = ({ navigation }) => {
           },
         ]}
         onPress={() =>
-          setValues({ ...values, showModal: true, imageType: type })
+          setValues({...values, showModal: true, imageType: type})
         }>
         {values[`${type}Url`] === '' ? (
           <>
@@ -309,7 +327,7 @@ const SignupScreen = ({ navigation }) => {
             <RegularText>{title}</RegularText>
           </>
         ) : (
-          <Image source={{ uri: imageSource }} style={styles(type).image} />
+          <Image source={{uri: imageSource}} style={styles(type).image} />
         )}
       </Pressable>
     );
@@ -334,7 +352,7 @@ const SignupScreen = ({ navigation }) => {
           outlined
           onPress={() => {
             setActivePage(prev => prev - 1);
-            setValues({ ...values, registerErrorFlag: 0 });
+            setValues({...values, registerErrorFlag: 0});
           }}
         />
       </View>
@@ -370,15 +388,15 @@ const SignupScreen = ({ navigation }) => {
   );
 
   const termsAndConditionsPage = () => (
-    <View style={{ flex: 1, justifyContent: 'space-between' }}>
+    <View style={{flex: 1, justifyContent: 'space-between'}}>
       <View>
         <SmallText noPadding>
-
-          1. Vendor will use the Rahat vendor application to provide goods to the beneficiaries.
-
+          1. Vendor will use the Rahat vendor application to provide goods to
+          the beneficiaries.
         </SmallText>
         <SmallText noPadding>
-          '2. The vendor will be reimbursed only after redeeming the tokens back to aid agency.'
+          '2. The vendor will be reimbursed only after redeeming the tokens back
+          to aid agency.'
         </SmallText>
       </View>
       <View>
@@ -392,11 +410,9 @@ const SignupScreen = ({ navigation }) => {
             value={agreeTC}
             onValueChange={value => setAgreeTC(value)}
             tintColor={colors.blue}
-            tintColors={{ true: colors.blue, false: colors.gray }}
+            tintColors={{true: colors.blue, false: colors.gray}}
           />
-          <SmallText noPadding>
-            I accept all terms and conditions.
-          </SmallText>
+          <SmallText noPadding>I accept all terms and conditions.</SmallText>
         </View>
         <View style={styles().buttonsView}>
           <CustomButton
@@ -429,7 +445,7 @@ const SignupScreen = ({ navigation }) => {
         // handleImageSelect(image);
       })
       .catch(e => {
-        RNToasty.Show({ title: `${e}`, duration: 0 });
+        RNToasty.Show({title: `${e}`, duration: 0});
         // handleImageSelectError(e);
       });
   };
@@ -447,7 +463,7 @@ const SignupScreen = ({ navigation }) => {
         // handleImageSelect(image);
       })
       .catch(e => {
-        RNToasty.Show({ title: `${e}`, duration: 0 });
+        RNToasty.Show({title: `${e}`, duration: 0});
         // handleImageSelectError(e);
       });
   };
@@ -457,9 +473,9 @@ const SignupScreen = ({ navigation }) => {
       animationType="fade"
       transparent={true}
       visible={showModal}
-      style={{ marginHorizontal: Spacing.hs }}
+      style={{marginHorizontal: Spacing.hs}}
       onRequestClose={() => {
-        setValues({ ...values, showModal: false });
+        setValues({...values, showModal: false});
       }}>
       <View style={styles(showModal).centeredModalView}>
         <View style={styles().modalView}>
@@ -480,7 +496,7 @@ const SignupScreen = ({ navigation }) => {
             outlined
             color={colors.gray}
             width={wp(80)}
-            onPress={() => setValues({ ...values, showModal: false })}
+            onPress={() => setValues({...values, showModal: false})}
           />
         </View>
       </View>
@@ -557,7 +573,7 @@ const styles = props =>
       // justifyContent: 'space-between',
       marginBottom: Spacing.vs * 2,
     },
-    uploadIcon: { paddingVertical: Spacing.vs },
+    uploadIcon: {paddingVertical: Spacing.vs},
     modalView: {
       paddingHorizontal: Spacing.vs,
       backgroundColor: 'white',
@@ -573,7 +589,6 @@ const styles = props =>
       shadowRadius: 4,
       elevation: 5,
     },
-
     centeredModalView: {
       flex: 1,
       justifyContent: 'center',
