@@ -215,7 +215,6 @@ const SignupScreen = ({navigation}) => {
     }
     setActivePage(prev => prev + 1);
   };
-  console.log({ward});
   const registerPage = () => (
     <View style={styles().pageView}>
       <View>
